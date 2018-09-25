@@ -16,8 +16,9 @@ public class GlobalException {
 	public ModelAndView handleCustomException(CustomException ex) {
 
 		ModelAndView model = new ModelAndView("error");
-		
-		LOGGER.error("CustomException",ex.getErrCode()+" : "+ex.getErrMsg());
+		LOGGER.error("CustomException : ",ex);
+		LOGGER.error("CustomException getErrMsg: ",ex.getErrMsg());
+		LOGGER.error("CustomException getErrCode: ",ex.getErrCode());
 		return model;
 
 	}
@@ -26,10 +27,9 @@ public class GlobalException {
 	public ModelAndView handleAllException(Exception ex) {
 
 		ModelAndView model = new ModelAndView("error");
-		LOGGER.error("Common Exception - Error : ",ex.getMessage());
-		LOGGER.debug("Common Exception - DEBUG : ",ex.getMessage());
-		LOGGER.info("Common Exception - INFO : ",ex);
+		LOGGER.error("Common Exception - Error : ",ex);
 		return model;
 
 	}
+	
 }

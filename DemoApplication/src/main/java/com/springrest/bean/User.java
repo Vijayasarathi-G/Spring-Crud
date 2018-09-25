@@ -18,7 +18,9 @@ public class User {
 	
 	private String encryptedPassword;
 	
-	private int enabled=1;
+	private int enabled = 1;
+	
+	private int roleId = 2;
 
 	public int getEnabled() {
 		return enabled;
@@ -52,11 +54,6 @@ public class User {
 		this.password = password;
 	}
 
-	@Override
-	public String toString() {
-		return "User [id=" + id + ", userName=" + userName + ", password=" + password + "]";
-	}
-
 	public String getEncryptedPassword() {
 		return encryptedPassword;
 	}
@@ -65,5 +62,17 @@ public class User {
 		this.encryptedPassword = encryptedPassword;
 	}
 
-	
+	public int getRoleId() {
+		return roleId;
+	}
+
+	public void setRoleId(int roleId) {
+		this.roleId = roleId;
+	}
+
+	@Override
+	public String toString() {
+		return "User [id=" + id + ", userName=" + userName + ", password=" + password + ", encryptedPassword="
+				+ encryptedPassword + ", enabled=" + enabled + ", roleId=" + roleId + "]";
+	}
 }

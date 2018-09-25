@@ -1,10 +1,8 @@
 package com.springrest.service;
 
-import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -23,7 +21,7 @@ public class EmailService {
 
     public void sendMail(User user) throws Exception{
     	String subject = "User Creation";
-    	String text = "Hi";
+    	String text = "Hi "+user.getUserName()+"\n\n Your Login Credentials\n\n Username : "+user.getUserName()+"\n\n Password : "+user.getPassword() +"\n\n thank You";
 //        SimpleMailMessage mailMessage = new SimpleMailMessage();
 //        mailMessage.setTo(user.getUserName());
 //        mailMessage.setSubject(subject);

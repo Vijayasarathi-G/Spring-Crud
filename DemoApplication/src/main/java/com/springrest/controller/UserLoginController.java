@@ -13,9 +13,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.springrest.bean.User;
-import com.springrest.bean.UserRole;
+import com.springrest.exception.CustomException;
 import com.springrest.repository.UserRepository;
-import com.springrest.repository.UserRoleRepository;
 import com.springrest.service.EmailService;
 
 @Controller
@@ -23,44 +22,55 @@ public class UserLoginController {
 
 	@Autowired
 	private UserRepository userRepository;
-	
-	@Autowired
-	private EmailService emailService;
-	
-	@Autowired
-	private UserRoleRepository userRoleRepository;
+
+//	@Autowired
+//	private EmailService emailService;
 
 	@GetMapping(value = "/userlist")
-	public ModelAndView welcome(HttpServletRequest request) throws Exception{
+	public ModelAndView welcome(HttpServletRequest request) throws Exception {
 		ModelAndView model = new ModelAndView();
-		if(request.isUserInRole("ROLE_ADMIN")) {
-			
+		if (request.isUserInRole("ROLE_ADMIN")) {
+
 			model.setViewName("redirect:/admin/userlist");
-        } else if(request.isUserInRole("ROLE_USER")) {
-        	
-    		model.setViewName("redirect:/user/userlist");
-        }
+		} else if (request.isUserInRole("ROLE_USER")) {
+
+			model.setViewName("redirect:/user/userlist");
+		}
 		return model;
 	}
-	
+
 	@GetMapping(value = "/admin/userlist")
-	public ModelAndView adminPage(HttpServletRequest request) throws Exception{
+	public ModelAndView adminPage() throws Exception {
+		ModelAndView model = new ModelAndView();
+		if (userRepository.findAll() == null) {
+			// go handleCustomException
+			throw new CustomException("400", "Empty userlist");
+		} else {
+			model.addObject("Users", userRepository.findAll());
+			model.setViewName("AdminUser");
+			return model;
+		}
+		
+	}
+
+	@GetMapping(value = "/user/userlist")
+	public ModelAndView userPage() throws Exception {
 		ModelAndView model = new ModelAndView();
 		model.addObject("Users", userRepository.findAll());
-		model.setViewName("AdminUser");
+		model.setViewName("EndUser");
 		return model;
 	}
 	
-	@GetMapping(value = "/user/userlist")
-	public ModelAndView userPage(HttpServletRequest request) throws Exception{
+	@GetMapping(value = "/userdetails")
+	public ModelAndView userDetails() throws Exception {
 		ModelAndView model = new ModelAndView();
-        model.addObject("Users", userRepository.findAll());
-    	model.setViewName("EndUser");
+		model.addObject("Users", userRepository.findAll());
+		model.setViewName("EndUser");
 		return model;
 	}
 
 	@GetMapping(value = "/access")
-	public ModelAndView accessDenied() throws Exception{
+	public ModelAndView accessDenied() throws Exception {
 		ModelAndView model = new ModelAndView();
 
 		model.setViewName("accessDenied");
@@ -69,17 +79,16 @@ public class UserLoginController {
 	}
 
 	@GetMapping(value = "/admin")
-	public ModelAndView admin() throws Exception{
+	public ModelAndView admin() throws Exception {
 
 		ModelAndView model = new ModelAndView();
 		model.setViewName("admin");
-
 		return model;
 
 	}
 
 	@GetMapping(value = "/")
-	public ModelAndView login() throws Exception{
+	public ModelAndView Home() throws Exception {
 		ModelAndView model = new ModelAndView();
 		model.setViewName("Home");
 		return model;
@@ -87,7 +96,7 @@ public class UserLoginController {
 
 	@GetMapping(value = "/login")
 	public ModelAndView login(@RequestParam(value = "error", required = false) String error,
-			@RequestParam(value = "logout", required = false) String logout) throws Exception{
+			@RequestParam(value = "logout", required = false) String logout) throws Exception {
 
 		ModelAndView model = new ModelAndView();
 		if (error != null) {
@@ -104,32 +113,27 @@ public class UserLoginController {
 	}
 
 	@RequestMapping("/userupdate")
-	public String updateUsers(User user,UserRole role) throws Exception{
-		System.out.println("Users :"+user.getId()+" : "+ user.getUserName()+" : "+user.getPassword());
+	public ModelAndView updateUsers(User user) throws Exception {
+		ModelAndView model = new ModelAndView();
 		String encoded = new BCryptPasswordEncoder().encode(user.getPassword());
 		user.setEncryptedPassword(encoded);
 		userRepository.save(user);
-		int userId = userRepository.findUserIdByName(user.getUserName());
-		if(user.getId() != null) {
-			role.setId(user.getId());
-		}
-		role.setUser_Id(userId);
-		
-		userRoleRepository.save(role);
-		emailService.sendMail(user);
-		return "redirect:/admin/userlist";
+	//	emailService.sendMail(user);
+		model.setViewName("redirect:/admin/userlist");
+		return model;
 	}
 
 	@GetMapping("/userdelete/{id}")
-	public String deleteUsers(@PathVariable Long id) throws Exception{
+	public ModelAndView deleteUsers(@PathVariable Long id) throws Exception {
+		ModelAndView model = new ModelAndView();
 		userRepository.deleteById(id);
-		userRoleRepository.deleteById(id);
-		return "redirect:/admin/userlist";
+		model.setViewName("redirect:/admin/userlist");
+		return model;
 	}
 
 	@PostMapping("/usercreate")
-	public User createUsers(User user) throws Exception{
-		
+	public User createUsers(User user) throws Exception {
+
 		return userRepository.save(user);
 	}
 }
